@@ -34,8 +34,8 @@ export default function VideoUploadModal({
       setError("動画ファイルを選択してください");
       return;
     }
-    if (selected.size > 500 * 1024 * 1024) {
-      setError("ファイルサイズは500MB以下にしてください");
+    if (selected.size > 50 * 1024 * 1024) {
+      setError("ファイルサイズは50MB以下にしてください");
       return;
     }
 
@@ -56,8 +56,9 @@ export default function VideoUploadModal({
       setDescription("");
       onUploaded();
       onClose();
-    } catch {
-      setError("アップロードに失敗しました。もう一度お試しください。");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError("アップロードに失敗しました: " + message);
     } finally {
       setUploading(false);
     }
