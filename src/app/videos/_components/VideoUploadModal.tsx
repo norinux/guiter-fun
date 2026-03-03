@@ -34,8 +34,8 @@ export default function VideoUploadModal({
       setError("動画ファイルを選択してください");
       return;
     }
-    if (selected.size > 50 * 1024 * 1024) {
-      setError("ファイルサイズは50MB以下にしてください");
+    if (selected.size > 4 * 1024 * 1024) {
+      setError("ファイルサイズは4MB以下にしてください");
       return;
     }
 
