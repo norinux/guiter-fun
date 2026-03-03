@@ -19,22 +19,30 @@ export async function POST(request: Request) {
     );
   }
 
-  const sql = neon(process.env.DATABASE_URL!);
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
 
-  const existing = await sql`SELECT id FROM users WHERE email = ${email.trim()}`;
-  if (existing.length > 0) {
+    const existing = await sql`SELECT id FROM users WHERE email = ${email.trim()}`;
+    if (existing.length > 0) {
+      return NextResponse.json(
+        { error: "このメールアドレスは既に登録されています" },
+        { status: 409 }
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    await sql`
+      INSERT INTO users (id, name, email, password_hash)
+      VALUES (gen_random_uuid()::text, ${name.trim()}, ${email.trim()}, ${passwordHash})
+    `;
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Signup error:", error);
     return NextResponse.json(
-      { error: "このメールアドレスは既に登録されています" },
-      { status: 409 }
+      { error: "サーバーエラーが発生しました" },
+      { status: 500 }
     );
   }
-
-  const passwordHash = await bcrypt.hash(password, 12);
-
-  await sql`
-    INSERT INTO users (id, name, email, password_hash)
-    VALUES (gen_random_uuid()::text, ${name.trim()}, ${email.trim()}, ${passwordHash})
-  `;
-
-  return NextResponse.json({ ok: true });
 }
