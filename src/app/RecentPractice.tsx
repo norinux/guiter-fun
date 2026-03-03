@@ -38,11 +38,11 @@ export default function RecentPractice() {
   const totalSeconds = sessions.reduce((sum, s) => sum + s.durationSeconds, 0);
 
   return (
-    <div className="rounded-2xl border border-foreground/10 bg-surface p-6">
-      <h2 className="mb-4 text-lg font-semibold">最近の練習</h2>
+    <div className="rounded-2xl border border-white/10 bg-surface p-6">
+      <h2 className="mb-4 text-lg font-semibold text-white">最近の練習</h2>
 
-      <div className="mb-4 text-sm text-foreground/60">
-        合計: <span className="font-semibold text-foreground">{formatDuration(totalSeconds)}</span>
+      <div className="mb-4 text-sm text-slate-400">
+        合計: <span className="font-semibold text-white">{formatDuration(totalSeconds)}</span>
         （{sessions.length}回）
       </div>
 
@@ -53,14 +53,14 @@ export default function RecentPractice() {
             className="flex items-center justify-between rounded-lg bg-background p-3"
           >
             <div className="flex items-center gap-3">
-              <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-xs font-medium">
+              <span className="rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-slate-300">
                 {categoryLabels[session.category]}
               </span>
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium text-slate-200">
                 {formatDuration(session.durationSeconds)}
               </span>
             </div>
-            <span className="text-xs text-foreground/40">
+            <span className="text-xs text-slate-500">
               {formatDate(session.date)}
             </span>
           </div>

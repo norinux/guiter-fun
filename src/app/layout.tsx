@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Navigation from "@/components/Navigation";
 import "./globals.css";
 
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Guitar Fun - ギター練習アプリ",
-  description: "コード練習、タブ譜プレーヤー、メトロノームを備えたギター練習アプリ",
+  title: "Guitar Fun - ギター練習&動画共有アプリ",
+  description: "コード練習、タブ譜プレーヤー、チューナー、動画共有を備えたギター練習アプリ",
 };
 
 export default function RootLayout({
@@ -24,14 +25,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        <Navigation />
-        <main className="min-h-screen pb-16 md:pb-0">
-          {children}
-        </main>
+        <AuthProvider>
+          <Navigation />
+          <main className="min-h-screen pb-16 md:pb-0">
+            {children}
+          </main>
+        </AuthProvider>
       </body>
     </html>
   );
