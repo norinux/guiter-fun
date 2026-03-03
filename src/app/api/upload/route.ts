@@ -26,9 +26,10 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     return NextResponse.json({ url: blob.url });
   } catch (error) {
-    console.error("Upload error:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Upload error:", message);
     return NextResponse.json(
-      { error: "アップロードに失敗しました" },
+      { error: message },
       { status: 500 }
     );
   }
