@@ -39,10 +39,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error("Signup error:", message);
+    console.error("Signup error:", error);
     return NextResponse.json(
-      { error: "サーバーエラー: " + message },
+      { error: "サーバーエラーが発生しました" },
       { status: 500 }
     );
   }
