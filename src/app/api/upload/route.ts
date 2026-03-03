@@ -1,12 +1,6 @@
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { auth } from "../../../../auth";
-
-export async function GET() {
-  return NextResponse.json({
-    hasBlobToken: !!process.env.BLOB_READ_WRITE_TOKEN,
-  });
-}
 
 export async function POST(request: Request): Promise<NextResponse> {
   const session = await auth();
@@ -14,39 +8,28 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return NextResponse.json({ error: "BLOB_READ_WRITE_TOKEN is not set" }, { status: 500 });
+  const formData = await request.formData();
+  const file = formData.get("file") as File | null;
+
+  if (!file) {
+    return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
 
-  const body = (await request.json()) as HandleUploadBody;
+  if (file.size > 50 * 1024 * 1024) {
+    return NextResponse.json({ error: "File too large (max 50MB)" }, { status: 400 });
+  }
 
   try {
-    const jsonResponse = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async () => {
-        return {
-          allowedContentTypes: [
-            "video/mp4",
-            "video/webm",
-            "video/quicktime",
-            "video/x-msvideo",
-            "video/x-matroska",
-          ],
-          maximumSizeInBytes: 50 * 1024 * 1024,
-          tokenPayload: JSON.stringify({ userId: session.user!.id }),
-        };
-      },
-      onUploadCompleted: async () => {
-        // Video record is created separately via POST /api/videos
-      },
+    const blob = await put(`videos/${session.user.id}/${Date.now()}_${file.name}`, file, {
+      access: "public",
     });
 
-    return NextResponse.json(jsonResponse);
+    return NextResponse.json({ url: blob.url });
   } catch (error) {
+    console.error("Upload error:", error);
     return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
+      { error: "アップロードに失敗しました" },
+      { status: 500 }
     );
   }
 }

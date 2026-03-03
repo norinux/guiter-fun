@@ -5,20 +5,27 @@ export async function uploadVideo(
   title: string,
   description: string
 ): Promise<VideoPost | null> {
-  const { upload } = await import("@vercel/blob/client");
-  const blob = await upload(file.name, file, {
-    access: "public",
-    handleUploadUrl: "/api/upload",
+  // Step 1: Upload file to Vercel Blob
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const uploadRes = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
   });
 
+  if (!uploadRes.ok) {
+    const data = await uploadRes.json();
+    throw new Error(data.error || "アップロードに失敗しました");
+  }
+
+  const { url: videoURL } = await uploadRes.json();
+
+  // Step 2: Create video record in DB
   const res = await fetch("/api/videos", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      videoURL: blob.url,
-      title,
-      description,
-    }),
+    body: JSON.stringify({ videoURL, title, description }),
   });
 
   if (!res.ok) return null;
