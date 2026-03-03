@@ -34,8 +34,8 @@ export default function VideoUploadModal({
       setError("動画ファイルを選択してください");
       return;
     }
-    if (selected.size > 100 * 1024 * 1024) {
-      setError("ファイルサイズは100MB以下にしてください");
+    if (selected.size > 500 * 1024 * 1024) {
+      setError("ファイルサイズは500MB以下にしてください");
       return;
     }
 
@@ -50,14 +50,7 @@ export default function VideoUploadModal({
     setError(null);
 
     try {
-      await uploadVideo(
-        file,
-        user.uid,
-        user.displayName ?? "匿名",
-        user.photoURL,
-        title.trim(),
-        description.trim()
-      );
+      await uploadVideo(file, title.trim(), description.trim());
       setFile(null);
       setTitle("");
       setDescription("");

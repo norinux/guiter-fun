@@ -18,24 +18,24 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(video.commentCount);
 
-  const isLiked = user ? video.likes.includes(user.uid) : false;
-  const isSaved = user ? video.savedBy.includes(user.uid) : false;
+  const isLiked = user ? video.likes.includes(user.id) : false;
+  const isSaved = user ? video.savedBy.includes(user.id) : false;
 
   const handleLike = async () => {
     if (!user) return;
-    await toggleLike(video.id, user.uid, isLiked);
+    await toggleLike(video.id, user.id, isLiked);
     const updatedLikes = isLiked
-      ? video.likes.filter((id) => id !== user.uid)
-      : [...video.likes, user.uid];
+      ? video.likes.filter((id) => id !== user.id)
+      : [...video.likes, user.id];
     onUpdate({ ...video, likes: updatedLikes });
   };
 
   const handleSave = async () => {
     if (!user) return;
-    await toggleSave(video.id, user.uid, isSaved);
+    await toggleSave(video.id, user.id, isSaved);
     const updatedSaved = isSaved
-      ? video.savedBy.filter((id) => id !== user.uid)
-      : [...video.savedBy, user.uid];
+      ? video.savedBy.filter((id) => id !== user.id)
+      : [...video.savedBy, user.id];
     onUpdate({ ...video, savedBy: updatedSaved });
   };
 

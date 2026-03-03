@@ -33,13 +33,7 @@ export default function CommentSection({
 
   const handleSubmit = async (text: string) => {
     if (!user) return;
-    const comment = await addComment(
-      videoId,
-      user.uid,
-      user.displayName ?? "匿名",
-      user.photoURL,
-      text
-    );
+    const comment = await addComment(videoId, text);
     if (comment) {
       setComments((prev) => [...prev, comment]);
       onCommentAdded?.();

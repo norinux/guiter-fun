@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { VideoPost } from "@/types/video";
-import { getVideoFeed, isFirebaseConfigured } from "@/lib/video-service";
+import { getVideoFeed } from "@/lib/video-service";
 import VideoCard from "./VideoCard";
 
 export default function VideoFeed() {
@@ -17,11 +17,7 @@ export default function VideoFeed() {
   }, []);
 
   useEffect(() => {
-    if (isFirebaseConfigured()) {
-      loadVideos();
-    } else {
-      setLoading(false);
-    }
+    loadVideos();
   }, [loadVideos]);
 
   const handleVideoUpdate = (updated: VideoPost) => {
@@ -29,16 +25,6 @@ export default function VideoFeed() {
       prev.map((v) => (v.id === updated.id ? updated : v))
     );
   };
-
-  if (!isFirebaseConfigured()) {
-    return (
-      <div className="rounded-2xl border border-white/10 bg-surface p-8 text-center">
-        <p className="text-slate-500">
-          動画機能を利用するにはFirebaseの設定が必要です。
-        </p>
-      </div>
-    );
-  }
 
   if (loading) {
     return (

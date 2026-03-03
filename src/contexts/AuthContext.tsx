@@ -1,17 +1,18 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
-import { User } from "firebase/auth";
-import { onAuthChange, signInWithGoogle, signOut } from "@/lib/auth";
+import { SessionProvider, useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { createContext, useContext, ReactNode } from "react";
+
+export interface AppUser {
+  id: string;
+  name: string;
+  email: string;
+  image: string | null;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
   signIn: () => Promise<void>;
   logOut: () => Promise<void>;
@@ -24,27 +25,24 @@ const AuthContext = createContext<AuthContextType>({
   logOut: async () => {},
 });
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+function AuthContextInner({ children }: { children: ReactNode }) {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-  useEffect(() => {
-    const unsubscribe = onAuthChange((user) => {
-      setUser(user);
-      setLoading(false);
-    });
-    return unsubscribe;
-  }, []);
+  const user: AppUser | null = session?.user
+    ? {
+        id: session.user.id!,
+        name: session.user.name ?? "匿名",
+        email: session.user.email ?? "",
+        image: session.user.image ?? null,
+      }
+    : null;
 
-  const signIn = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (error) {
-      console.error("ログインに失敗しました:", error);
-    }
+  const handleSignIn = async () => {
+    router.push("/login");
   };
 
-  const logOut = async () => {
+  const handleLogOut = async () => {
     try {
       await signOut();
     } catch (error) {
@@ -53,9 +51,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, logOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading: status === "loading",
+        signIn: handleSignIn,
+        logOut: handleLogOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
+  );
+}
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  return (
+    <SessionProvider>
+      <AuthContextInner>{children}</AuthContextInner>
+    </SessionProvider>
   );
 }
 

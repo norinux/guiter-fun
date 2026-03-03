@@ -110,9 +110,9 @@ export default function Navigation() {
                     : "text-slate-400 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                {user.photoURL ? (
+                {user.image ? (
                   <img
-                    src={user.photoURL}
+                    src={user.image}
                     alt=""
                     className="h-6 w-6 rounded-full"
                     referrerPolicy="no-referrer"

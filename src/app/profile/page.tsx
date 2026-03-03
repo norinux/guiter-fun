@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { VideoPost } from "@/types/video";
-import { getUserVideos, getVideoFeed, isFirebaseConfigured } from "@/lib/video-service";
+import { getUserVideos, getVideoFeed } from "@/lib/video-service";
 import VideoCard from "../videos/_components/VideoCard";
 
 type Tab = "posts" | "saved";
@@ -16,16 +16,16 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!user || !isFirebaseConfigured()) return;
+    if (!user) return;
 
     const load = async () => {
       setLoading(true);
       const [userVids, allVids] = await Promise.all([
-        getUserVideos(user.uid),
+        getUserVideos(user.id),
         getVideoFeed(),
       ]);
       setMyVideos(userVids);
-      setSavedVideos(allVids.filter((v) => v.savedBy.includes(user.uid)));
+      setSavedVideos(allVids.filter((v) => v.savedBy.includes(user.id)));
       setLoading(false);
     };
     load();
@@ -73,7 +73,7 @@ export default function ProfilePage() {
           onClick={signIn}
           className="rounded-xl bg-primary px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-primary-dark"
         >
-          Googleでログイン
+          ログイン
         </button>
       </div>
     );
@@ -85,9 +85,9 @@ export default function ProfilePage() {
     <div className="mx-auto max-w-2xl px-4 py-8">
       {/* ユーザー情報 */}
       <div className="mb-6 flex items-center gap-4">
-        {user.photoURL ? (
+        {user.image ? (
           <img
-            src={user.photoURL}
+            src={user.image}
             alt=""
             className="h-16 w-16 rounded-full"
             referrerPolicy="no-referrer"
@@ -97,7 +97,7 @@ export default function ProfilePage() {
         )}
         <div>
           <h1 className="text-2xl font-bold text-white">
-            {user.displayName}
+            {user.name}
           </h1>
           <p className="text-sm text-slate-400">{user.email}</p>
         </div>
