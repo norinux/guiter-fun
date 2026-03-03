@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import LoginButton from "./LoginButton";
 import VideoUploadModal from "@/app/videos/_components/VideoUploadModal";
@@ -59,6 +59,7 @@ const navItems = [
 
 export default function Navigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useAuth();
   const [showUpload, setShowUpload] = useState(false);
 
@@ -158,7 +159,7 @@ export default function Navigation() {
             if (user) {
               setShowUpload(true);
             } else {
-              window.location.href = "/guiter-fun/videos";
+              router.push("/videos");
             }
           }}
           className="flex flex-col items-center -mt-4"
