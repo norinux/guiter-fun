@@ -5,12 +5,20 @@ import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import PracticeAssistant from "./_components/PracticeAssistant";
 import PerformanceFeedback from "./_components/PerformanceFeedback";
+import type { SkillLevel } from "@/lib/ai/prompts";
 
 type Tab = "assistant" | "feedback";
+
+const skillLevels: { value: SkillLevel; label: string; icon: string }[] = [
+  { value: "beginner", label: "初心者", icon: "🔰" },
+  { value: "intermediate", label: "中級者", icon: "🎸" },
+  { value: "advanced", label: "上級者", icon: "🎯" },
+];
 
 export default function AiPage() {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("assistant");
+  const [skillLevel, setSkillLevel] = useState<SkillLevel>("beginner");
 
   if (loading) {
     return (
@@ -46,6 +54,23 @@ export default function AiPage() {
       <div className="border-b border-white/10 px-4 pt-6 pb-0">
         <h1 className="mb-4 text-2xl font-bold text-white">AIアシスタント</h1>
 
+        {/* スキルレベル選択 */}
+        <div className="mb-4 flex gap-2">
+          {skillLevels.map(({ value, label, icon }) => (
+            <button
+              key={value}
+              onClick={() => setSkillLevel(value)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                skillLevel === value
+                  ? "bg-primary text-white"
+                  : "border border-white/10 bg-surface text-slate-400 hover:text-white"
+              }`}
+            >
+              {icon} {label}
+            </button>
+          ))}
+        </div>
+
         {/* タブ */}
         <div className="flex">
           <button
@@ -73,9 +98,9 @@ export default function AiPage() {
 
       {/* コンテンツ */}
       {activeTab === "assistant" ? (
-        <PracticeAssistant />
+        <PracticeAssistant skillLevel={skillLevel} />
       ) : (
-        <PerformanceFeedback />
+        <PerformanceFeedback skillLevel={skillLevel} />
       )}
     </div>
   );

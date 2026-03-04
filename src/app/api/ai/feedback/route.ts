@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { generateText } from "ai";
 import { aiModel } from "@/lib/ai/config";
-import { performanceFeedbackPrompt } from "@/lib/ai/prompts";
+import { getPerformanceFeedbackPrompt, type SkillLevel } from "@/lib/ai/prompts";
 import { auth } from "../../../../../auth";
 
 export async function POST(request: Request) {
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { description } = await request.json();
+  const { description, level = "beginner" } = await request.json();
 
   if (!description?.trim()) {
     return NextResponse.json(
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
   const { text } = await generateText({
     model: aiModel,
-    system: performanceFeedbackPrompt,
+    system: getPerformanceFeedbackPrompt(level as SkillLevel),
     prompt: description.trim(),
   });
 

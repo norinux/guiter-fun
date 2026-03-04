@@ -2,24 +2,59 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import ChatMessage from "./ChatMessage";
+import type { SkillLevel } from "@/lib/ai/prompts";
 
-const suggestedQuestions = [
-  "Fコードのコツは？",
-  "初心者におすすめの曲は？",
-  "ストロークの基本を教えて",
-  "スケール練習の方法は？",
-];
+const suggestedQuestionsByLevel: Record<SkillLevel, string[]> = {
+  beginner: [
+    "Fコードのコツは？",
+    "ストロークの基本を教えて",
+    "チューニングのやり方は？",
+    "簡単な曲を教えて",
+  ],
+  intermediate: [
+    "ペンタトニックスケールの使い方は？",
+    "バレーコードのコツは？",
+    "アルペジオの練習法は？",
+    "リズムキープのコツは？",
+  ],
+  advanced: [
+    "モードスケールの実践的な使い方は？",
+    "ジャズコードのヴォイシングは？",
+    "スウィープピッキングの練習法は？",
+    "即興演奏のアプローチは？",
+  ],
+};
 
-export default function PracticeAssistant() {
-  const { messages, sendMessage, status } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/ai/chat" }),
-  });
+interface Props {
+  skillLevel: SkillLevel;
+}
+
+export default function PracticeAssistant({ skillLevel }: Props) {
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: "/api/ai/chat",
+        body: { level: skillLevel },
+      }),
+    [skillLevel]
+  );
+
+  const { messages, sendMessage, status, setMessages } = useChat({ transport });
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const prevLevelRef = useRef(skillLevel);
 
   const isLoading = status === "submitted" || status === "streaming";
+
+  // レベル変更時にチャットリセット
+  useEffect(() => {
+    if (prevLevelRef.current !== skillLevel) {
+      setMessages([]);
+      prevLevelRef.current = skillLevel;
+    }
+  }, [skillLevel, setMessages]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -38,8 +73,10 @@ export default function PracticeAssistant() {
     sendMessage({ text: question });
   };
 
+  const suggestedQuestions = suggestedQuestionsByLevel[skillLevel];
+
   return (
-    <div className="flex flex-col" style={{ height: "calc(100vh - 220px)" }}>
+    <div className="flex flex-col" style={{ height: "calc(100vh - 270px)" }}>
       {/* メッセージ一覧 */}
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-4">
         {messages.length === 0 ? (

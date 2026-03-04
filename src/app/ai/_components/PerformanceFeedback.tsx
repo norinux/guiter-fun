@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import type { SkillLevel } from "@/lib/ai/prompts";
 
-export default function PerformanceFeedback() {
+interface Props {
+  skillLevel: SkillLevel;
+}
+
+export default function PerformanceFeedback({ skillLevel }: Props) {
   const [description, setDescription] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -19,7 +24,10 @@ export default function PerformanceFeedback() {
       const res = await fetch("/api/ai/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: description.trim() }),
+        body: JSON.stringify({
+          description: description.trim(),
+          level: skillLevel,
+        }),
       });
 
       if (!res.ok) {

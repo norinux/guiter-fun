@@ -1,6 +1,6 @@
 import { streamText } from "ai";
 import { aiModel } from "@/lib/ai/config";
-import { practiceAssistantPrompt } from "@/lib/ai/prompts";
+import { getPracticeAssistantPrompt, type SkillLevel } from "@/lib/ai/prompts";
 import { auth } from "../../../../../auth";
 
 export async function POST(request: Request) {
@@ -9,11 +9,11 @@ export async function POST(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const { messages } = await request.json();
+  const { messages, level = "beginner" } = await request.json();
 
   const result = streamText({
     model: aiModel,
-    system: practiceAssistantPrompt,
+    system: getPracticeAssistantPrompt(level as SkillLevel),
     messages,
   });
 
