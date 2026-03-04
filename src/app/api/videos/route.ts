@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getDownloadUrl } from "@vercel/blob";
 import { getDb } from "@/lib/db";
 import { auth } from "../../../../auth";
 
@@ -35,7 +36,7 @@ export async function GET() {
     userId: row.user_id,
     userName: row.user_name,
     userPhotoURL: row.user_photo_url,
-    videoURL: row.video_url,
+    videoURL: getDownloadUrl(row.video_url as string),
     thumbnailURL: row.thumbnail_url,
     title: row.title,
     description: row.description,
