@@ -21,6 +21,8 @@ export default function VideoUploadModal({
   const [description, setDescription] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [review, setReview] = useState<string | null>(null);
+  const [reviewing, setReviewing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -61,6 +63,26 @@ export default function VideoUploadModal({
       setError("アップロードに失敗しました: " + message);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleAiReview = async () => {
+    if (!title.trim()) return;
+    setReviewing(true);
+    setReview(null);
+    try {
+      const res = await fetch("/api/ai/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title.trim(), description: description.trim() || undefined }),
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setReview(data.review);
+    } catch {
+      setReview("レビューの取得に失敗しました。");
+    } finally {
+      setReviewing(false);
     }
   };
 
@@ -171,6 +193,27 @@ export default function VideoUploadModal({
             className="w-full resize-none rounded-lg border border-white/10 bg-background px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-primary disabled:opacity-50"
           />
         </div>
+
+        {/* AIレビュー */}
+        {title.trim() && (
+          <div className="mb-4">
+            <button
+              onClick={handleAiReview}
+              disabled={reviewing || uploading}
+              className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3z" />
+              </svg>
+              {reviewing ? "レビュー中..." : "AIレビュー"}
+            </button>
+            {review && (
+              <div className="mt-2 rounded-lg border border-white/10 bg-background p-3 text-sm whitespace-pre-wrap text-slate-300">
+                {review}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 投稿ボタン */}
         <button
