@@ -143,7 +143,7 @@ export default function Navigation() {
               href={item.href}
               className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs font-medium transition-colors ${
                 isActive
-                  ? "text-primary"
+                  ? "text-white"
                   : "text-slate-500 hover:text-slate-300"
               }`}
             >
@@ -181,7 +181,7 @@ export default function Navigation() {
               href={item.href}
               className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs font-medium transition-colors ${
                 isActive
-                  ? "text-primary"
+                  ? "text-white"
                   : "text-slate-500 hover:text-slate-300"
               }`}
             >
@@ -195,7 +195,7 @@ export default function Navigation() {
             href="/profile"
             className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs font-medium transition-colors ${
               pathname === "/profile"
-                ? "text-primary"
+                ? "text-white"
                 : "text-slate-500 hover:text-slate-300"
             }`}
           >
