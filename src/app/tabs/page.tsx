@@ -1,17 +1,29 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { sampleTabs } from "@/data/sample-tabs";
 import { TabSong } from "@/types/tab";
 import TabDisplay from "./_components/TabDisplay";
 import TabPlayer from "./_components/TabPlayer";
 import TabBottomBar from "./_components/TabBottomBar";
+import YouTubeResults from "./_components/YouTubeResults";
+
+interface YouTubeVideo {
+  videoId: string;
+  title: string;
+  thumbnail: string;
+  channelTitle: string;
+}
 
 export default function TabsPage() {
   const [selectedTab, setSelectedTab] = useState<TabSong>(sampleTabs[0]);
   const [currentPosition, setCurrentPosition] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [youtubeResults, setYoutubeResults] = useState<YouTubeVideo[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handlePositionChange = useCallback((pos: number) => {
     setCurrentPosition(pos);
@@ -29,6 +41,43 @@ export default function TabsPage() {
         tab.title.toLowerCase().includes(q) ||
         (tab.artist && tab.artist.toLowerCase().includes(q))
     );
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    const query = searchQuery.trim();
+    if (!query) {
+      setYoutubeResults([]);
+      setHasSearched(false);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/youtube-search?q=${encodeURIComponent(query)}`
+        );
+        const data = await res.json();
+        setYoutubeResults(data.videos || []);
+      } catch {
+        setYoutubeResults([]);
+      } finally {
+        setIsSearching(false);
+        setHasSearched(true);
+      }
+    }, 500);
+
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
   }, [searchQuery]);
 
   return (
@@ -83,6 +132,15 @@ export default function TabsPage() {
             onPlayingChange={handlePlayingChange}
           />
         </div>
+
+        {/* YouTube検索結果 */}
+        {searchQuery.trim() && (
+          <YouTubeResults
+            videos={youtubeResults}
+            isSearching={isSearching}
+            hasSearched={hasSearched}
+          />
+        )}
       </div>
 
       <TabBottomBar
