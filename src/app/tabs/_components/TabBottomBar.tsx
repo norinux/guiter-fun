@@ -91,7 +91,7 @@ export default function TabBottomBar({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="曲名・アーティストで検索..."
-              className="w-full rounded-md border border-foreground/10 bg-surface py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none"
+              className="w-full rounded-md border border-foreground/20 bg-surface-light py-1.5 pl-8 pr-3 text-xs text-foreground placeholder:text-foreground/50 focus:border-primary focus:outline-none"
             />
           </div>
         </div>

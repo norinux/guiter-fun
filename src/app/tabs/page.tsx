@@ -57,7 +57,7 @@ export default function TabsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="曲名・アーティストで検索..."
-            className="w-full rounded-lg border border-foreground/10 bg-surface py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none"
+            className="w-full rounded-lg border border-foreground/20 bg-surface-light py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-foreground/50 focus:border-primary focus:outline-none"
           />
         </div>
 
