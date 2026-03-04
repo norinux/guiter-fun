@@ -4,6 +4,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useRef, useEffect, useState, useMemo } from "react";
 import ChatMessage from "./ChatMessage";
+import GuitaFreAvatar from "@/components/GuitaFreAvatar";
 import type { SkillLevel } from "@/lib/ai/prompts";
 
 const suggestedQuestionsByLevel: Record<SkillLevel, string[]> = {
@@ -81,7 +82,9 @@ export default function PracticeAssistant({ skillLevel }: Props) {
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="mb-4 text-4xl">🎸</div>
+            <div className="mb-4">
+              <GuitaFreAvatar size={64} />
+            </div>
             <h3 className="mb-2 text-lg font-semibold text-white">
               ギタフレに聞いてみよう！
             </h3>
@@ -106,11 +109,11 @@ export default function PracticeAssistant({ skillLevel }: Props) {
           ))
         )}
         {isLoading && messages[messages.length - 1]?.role === "user" && (
-          <div className="flex justify-start">
+          <div className="flex justify-start gap-2">
+            <div className="shrink-0 mt-1">
+              <GuitaFreAvatar size={28} />
+            </div>
             <div className="rounded-2xl border border-white/10 bg-surface px-4 py-3 text-sm text-slate-400">
-              <div className="mb-1 text-xs font-medium text-primary">
-                ギタフレ
-              </div>
               考え中...
             </div>
           </div>
