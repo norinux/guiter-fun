@@ -21,7 +21,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   try {
     const blob = await put(`videos/${session.user.id}/${Date.now()}_${file.name}`, file, {
-      access: "public",
+      access: "private",
     });
 
     return NextResponse.json({ url: blob.url });
