@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { sampleTabs } from "@/data/sample-tabs";
 import { TabSong } from "@/types/tab";
 import TabDisplay from "./_components/TabDisplay";
@@ -11,6 +11,7 @@ export default function TabsPage() {
   const [selectedTab, setSelectedTab] = useState<TabSong>(sampleTabs[0]);
   const [currentPosition, setCurrentPosition] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handlePositionChange = useCallback((pos: number) => {
     setCurrentPosition(pos);
@@ -20,10 +21,45 @@ export default function TabsPage() {
     setIsPlaying(playing);
   }, []);
 
+  const filteredTabs = useMemo(() => {
+    if (!searchQuery.trim()) return sampleTabs;
+    const q = searchQuery.toLowerCase();
+    return sampleTabs.filter(
+      (tab) =>
+        tab.title.toLowerCase().includes(q) ||
+        (tab.artist && tab.artist.toLowerCase().includes(q))
+    );
+  }, [searchQuery]);
+
   return (
     <>
       <div className="mx-auto max-w-5xl px-4 py-8 pb-32">
-        <h1 className="mb-6 text-3xl font-bold">タブ譜</h1>
+        <h1 className="mb-4 text-3xl font-bold">タブ譜</h1>
+
+        {/* 検索バー */}
+        <div className="mb-6 relative">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="曲名・アーティストで検索..."
+            className="w-full rounded-lg border border-foreground/10 bg-surface py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none"
+          />
+        </div>
 
         <div className="space-y-4">
           <div>
@@ -52,6 +88,9 @@ export default function TabsPage() {
       <TabBottomBar
         selectedTabId={selectedTab.id}
         onSelect={setSelectedTab}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filteredTabs={filteredTabs}
       />
     </>
   );
