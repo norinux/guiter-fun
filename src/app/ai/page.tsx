@@ -65,13 +65,8 @@ export default function AiPage() {
         <h1 className="mb-3 text-2xl font-bold text-white">AIアシスタント</h1>
 
         {/* スキルレベル スライダー */}
-        <div className="mb-4 px-1">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-slate-500">レベル</span>
-            <span className="text-xs font-medium text-primary">
-              {skillLevelConfig[levelIndex].label}
-            </span>
-          </div>
+        <div className="mb-4 flex items-center gap-3">
+          <span className="text-xs text-slate-500 shrink-0">Lv.</span>
           <input
             type="range"
             min={0}
@@ -79,13 +74,11 @@ export default function AiPage() {
             step={1}
             value={levelIndex}
             onChange={handleSliderChange}
-            className="skill-slider w-full"
+            className="skill-slider w-32"
           />
-          <div className="mt-1 flex justify-between text-[11px] text-slate-500">
-            {skillLevelConfig.map(({ label }) => (
-              <span key={label}>{label}</span>
-            ))}
-          </div>
+          <span className="text-xs font-medium text-primary shrink-0">
+            {skillLevelConfig[levelIndex].label}
+          </span>
         </div>
 
         {/* タブ */}
