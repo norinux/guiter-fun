@@ -9,16 +9,26 @@ import type { SkillLevel } from "@/lib/ai/prompts";
 
 type Tab = "assistant" | "feedback";
 
-const skillLevels: { value: SkillLevel; label: string; icon: string }[] = [
-  { value: "beginner", label: "初心者", icon: "🔰" },
-  { value: "intermediate", label: "中級者", icon: "🎸" },
-  { value: "advanced", label: "上級者", icon: "🎯" },
+const skillLevelConfig: {
+  value: SkillLevel;
+  label: string;
+}[] = [
+  { value: "beginner", label: "初心者" },
+  { value: "intermediate", label: "中級者" },
+  { value: "advanced", label: "上級者" },
 ];
 
 export default function AiPage() {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("assistant");
   const [skillLevel, setSkillLevel] = useState<SkillLevel>("beginner");
+
+  const levelIndex = skillLevelConfig.findIndex((l) => l.value === skillLevel);
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const idx = Number(e.target.value);
+    setSkillLevel(skillLevelConfig[idx].value);
+  };
 
   if (loading) {
     return (
@@ -52,23 +62,30 @@ export default function AiPage() {
     <div className="mx-auto max-w-2xl">
       {/* ヘッダー */}
       <div className="border-b border-white/10 px-4 pt-6 pb-0">
-        <h1 className="mb-4 text-2xl font-bold text-white">AIアシスタント</h1>
+        <h1 className="mb-3 text-2xl font-bold text-white">AIアシスタント</h1>
 
-        {/* スキルレベル選択 */}
-        <div className="mb-4 flex gap-2">
-          {skillLevels.map(({ value, label, icon }) => (
-            <button
-              key={value}
-              onClick={() => setSkillLevel(value)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                skillLevel === value
-                  ? "bg-primary text-white"
-                  : "border border-white/10 bg-surface text-slate-400 hover:text-white"
-              }`}
-            >
-              {icon} {label}
-            </button>
-          ))}
+        {/* スキルレベル スライダー */}
+        <div className="mb-4 px-1">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-slate-500">レベル</span>
+            <span className="text-xs font-medium text-primary">
+              {skillLevelConfig[levelIndex].label}
+            </span>
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={2}
+            step={1}
+            value={levelIndex}
+            onChange={handleSliderChange}
+            className="skill-slider w-full"
+          />
+          <div className="mt-1 flex justify-between text-[11px] text-slate-500">
+            {skillLevelConfig.map(({ label }) => (
+              <span key={label}>{label}</span>
+            ))}
+          </div>
         </div>
 
         {/* タブ */}

@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import { generateText } from "ai";
+import { streamText } from "ai";
 import { aiModel } from "@/lib/ai/config";
 import { getPerformanceFeedbackPrompt, type SkillLevel } from "@/lib/ai/prompts";
 import { auth } from "../../../../../auth";
@@ -7,23 +6,16 @@ import { auth } from "../../../../../auth";
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return new Response("Unauthorized", { status: 401 });
   }
 
-  const { description, level = "beginner" } = await request.json();
+  const { messages, level = "beginner" } = await request.json();
 
-  if (!description?.trim()) {
-    return NextResponse.json(
-      { error: "練習内容を入力してください" },
-      { status: 400 }
-    );
-  }
-
-  const { text } = await generateText({
+  const result = streamText({
     model: aiModel,
     system: getPerformanceFeedbackPrompt(level as SkillLevel),
-    prompt: description.trim(),
+    messages,
   });
 
-  return NextResponse.json({ feedback: text });
+  return result.toUIMessageStreamResponse();
 }
