@@ -11,7 +11,8 @@ const OPEN_STRING_FREQ = [
 ];
 
 /**
- * Play a guitar note using Web Audio API with a plucked string sound.
+ * Play a realistic guitar note using multiple harmonics,
+ * pluck noise burst, and decaying lowpass filter.
  */
 function playGuitarNote(
   stringIndex: number,
@@ -20,43 +21,79 @@ function playGuitarNote(
   time: number,
 ) {
   const freq = OPEN_STRING_FREQ[stringIndex] * Math.pow(2, fret / 12);
-  const duration = 1.2;
+  const duration = 1.5;
 
-  // Fundamental tone
-  const osc = ctx.createOscillator();
-  osc.type = "triangle";
-  osc.frequency.value = freq;
+  // --- Master output with compressor-like limiter ---
+  const master = ctx.createGain();
+  master.gain.value = 0.18;
+  master.connect(ctx.destination);
 
-  // Second harmonic for richness
-  const osc2 = ctx.createOscillator();
-  osc2.type = "sine";
-  osc2.frequency.value = freq * 2;
-
-  // Gain envelope (plucked string: sharp attack, exponential decay)
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0.25, time);
-  gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
-
-  const gain2 = ctx.createGain();
-  gain2.gain.setValueAtTime(0.08, time);
-  gain2.gain.exponentialRampToValueAtTime(0.001, time + duration * 0.6);
-
-  // High-frequency rolloff to sound more natural
+  // --- Decaying lowpass filter (bright attack → mellow sustain, like a real string) ---
   const filter = ctx.createBiquadFilter();
   filter.type = "lowpass";
-  filter.frequency.value = 2000 + freq;
-  filter.Q.value = 1;
+  filter.frequency.setValueAtTime(4000 + freq * 3, time);
+  filter.frequency.exponentialRampToValueAtTime(800 + freq, time + duration * 0.4);
+  filter.Q.value = 0.7;
+  filter.connect(master);
 
-  osc.connect(gain);
-  osc2.connect(gain2);
-  gain.connect(filter);
-  gain2.connect(filter);
-  filter.connect(ctx.destination);
+  // --- Body resonance (simulates guitar body) ---
+  const body = ctx.createBiquadFilter();
+  body.type = "peaking";
+  body.frequency.value = 250;
+  body.gain.value = 3;
+  body.Q.value = 1;
+  body.connect(filter);
 
-  osc.start(time);
-  osc.stop(time + duration);
-  osc2.start(time);
-  osc2.stop(time + duration);
+  // --- Harmonics (fundamental + overtones with decreasing volume) ---
+  const harmonics = [
+    { ratio: 1, vol: 0.6, type: "sawtooth" as OscillatorType },
+    { ratio: 2, vol: 0.2, type: "sine" as OscillatorType },
+    { ratio: 3, vol: 0.1, type: "sine" as OscillatorType },
+    { ratio: 4, vol: 0.04, type: "sine" as OscillatorType },
+  ];
+
+  for (const h of harmonics) {
+    const osc = ctx.createOscillator();
+    osc.type = h.type;
+    osc.frequency.value = freq * h.ratio;
+
+    const gain = ctx.createGain();
+    // Higher harmonics decay faster
+    const decayTime = duration / h.ratio;
+    gain.gain.setValueAtTime(h.vol, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + decayTime);
+
+    osc.connect(gain);
+    gain.connect(body);
+    osc.start(time);
+    osc.stop(time + decayTime + 0.05);
+  }
+
+  // --- Pluck noise burst (the "pick attack" sound) ---
+  const bufferSize = ctx.sampleRate * 0.04; // 40ms of noise
+  const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+  }
+
+  const noiseSrc = ctx.createBufferSource();
+  noiseSrc.buffer = noiseBuffer;
+
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = "bandpass";
+  noiseFilter.frequency.value = freq * 2;
+  noiseFilter.Q.value = 2;
+
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.setValueAtTime(0.6, time);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
+
+  noiseSrc.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(filter);
+  noiseSrc.start(time);
+  noiseSrc.stop(time + 0.06);
 }
 
 /**
