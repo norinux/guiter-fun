@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navigation from "@/components/Navigation";
-import AiFloatingButton from "@/components/AiFloatingButton";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,7 +35,7 @@ export default function RootLayout({
           <main className="min-h-screen pb-16 md:pb-0">
             {children}
           </main>
-          <AiFloatingButton />
+
         </AuthProvider>
       </body>
     </html>
