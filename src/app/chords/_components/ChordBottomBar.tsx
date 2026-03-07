@@ -13,7 +13,15 @@ const categories = [
   { key: "all", label: "すべて" },
   { key: "major", label: "メジャー" },
   { key: "minor", label: "マイナー" },
-  { key: "seventh", label: "セブンス" },
+  { key: "seventh", label: "7th" },
+  { key: "minor7", label: "m7" },
+  { key: "major7", label: "M7" },
+  { key: "sus4", label: "sus4" },
+  { key: "sus2", label: "sus2" },
+  { key: "dim", label: "dim" },
+  { key: "aug", label: "aug" },
+  { key: "add9", label: "add9" },
+  { key: "power", label: "パワー" },
 ] as const;
 
 type Category = (typeof categories)[number]["key"];
@@ -61,7 +69,7 @@ export default function ChordBottomBar({
       {/* 展開パネル */}
       <div
         className={`overflow-hidden border-t border-foreground/10 bg-background/95 backdrop-blur transition-all duration-300 ${
-          isOpen ? "max-h-40" : "max-h-0 border-t-0"
+          isOpen ? "max-h-52" : "max-h-0 border-t-0"
         }`}
       >
         <div className="px-4 py-3">

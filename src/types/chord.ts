@@ -13,7 +13,7 @@ export interface ChordDefinition {
   id: string;
   name: string;
   nameShort: string;
-  category: "major" | "minor" | "seventh";
+  category: "major" | "minor" | "seventh" | "minor7" | "major7" | "sus2" | "sus4" | "dim" | "aug" | "add9" | "power";
   /** [lowE, A, D, G, B, highE] */
   strings: [StringState, StringState, StringState, StringState, StringState, StringState];
   fingers: FingerPosition[];
