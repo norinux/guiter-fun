@@ -43,3 +43,25 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 CREATE INDEX IF NOT EXISTS idx_comments_video_id ON comments(video_id);
+
+CREATE TABLE IF NOT EXISTS battles (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  player1_id TEXT NOT NULL REFERENCES users(id),
+  player1_name TEXT NOT NULL,
+  player1_image TEXT,
+  player2_id TEXT REFERENCES users(id),
+  player2_name TEXT,
+  player2_image TEXT,
+  status TEXT NOT NULL DEFAULT 'waiting',
+  round1_p1_score INT,
+  round1_p2_score INT,
+  round2_p1_score INT,
+  round2_p2_score INT,
+  round3_p1_score INT,
+  round3_p2_score INT,
+  winner_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_battles_status ON battles(status);
+CREATE INDEX IF NOT EXISTS idx_battles_created_at ON battles(created_at DESC);

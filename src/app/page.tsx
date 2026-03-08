@@ -53,6 +53,18 @@ const features = [
       </svg>
     ),
   },
+  {
+    href: "/battles",
+    title: "ギターバトル",
+    description: "1v1リアルタイム対戦! フリー演奏で腕を競おう",
+    icon: (
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+        <path d="M12 18l12-12 12 12" />
+        <path d="M12 30l12 12 12-12" />
+        <line x1="24" y1="6" x2="24" y2="42" />
+      </svg>
+    ),
+  },
 ];
 
 const quickAccess = [
@@ -98,7 +110,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="mb-8 grid gap-4 grid-cols-2 md:grid-cols-4">
+      <div className="mb-8 grid gap-4 grid-cols-2 md:grid-cols-5">
         {features.map((feature) => (
           <Link
             key={feature.href}
